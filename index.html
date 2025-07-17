@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; frame-src https://www.youtube.com https://embed.nicovideo.jp https://open.spotify.com; connect-src 'self' https:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <title>おすすめ楽曲 Share</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 25%, #fecfef 50%, #a8edea 75%, #fed6e3 100%);
+            background-size: 400% 400%;
+            animation: marbleShift 15s ease-in-out infinite;
+            color: #333;
+        }
+
+        @keyframes marbleShift {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 25%; }
+            50% { background-position: 100% 50%; }
+            75% { background-position: 0% 75%; }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.4) 2px, transparent 2px),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.3) 1px, transparent 1px),
+                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.5) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 60% 40%, rgba(255,192,203,0.3) 1px, transparent 1px);
+            background-size: 80px 80px, 120px 120px, 150px 150px, 200px 200px;
+            pointer-events: none;
+            z-index: -1;
+            animation: sparkle 8s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        h1 {
+            color: #444;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b9d, #4ecdc4);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: textShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes textShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        p {
+            color: #555;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        #player-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,192,203,0.4);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 640px;
+            margin: 20px auto;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(255,182,193,0.4), 0 4px 20px rgba(135,206,235,0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        #player-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(255,182,193,0.5), 0 8px 30px rgba(135,206,235,0.4);
+        }
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 18px;
+        }
+        button {
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: #444;
+            border: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 6px 20px rgba(255,154,158,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #fecfef, #a8edea);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,154,158,0.4);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        .platform-button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+        .platform-button {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: transparent;
+            color: #555;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .platform-button.active {
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, 0.2);
+            color: #ff6b9d;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);
+        }
+        .share-button {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border: 2px solid rgba(168,237,234,0.5);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .share-button:hover {
+            background: linear-gradient(135deg, #fed6e3, #d299c2);
+            border-color: rgba(254,214,227,0.8);
+            transform: translateY(-3px);
+        }
+        #native-share-button {
+            display: none; /* 初期状態では非表示 */
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
+        }
+        .share-button.active {
+            background: linear-gradient(135deg, #ff6b9d, #4ecdc4);
+            color: white;
+            border-color: #ff6b9d;
+            box-shadow: 0 8px 25px rgba(255, 107, 157, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        textarea {
+            width: 100%;
+            max-width: 640px;
+            margin: 20px auto;
+            padding: 18px;
+            font-size: 16px;
+            line-height: 1.6;
+            box-sizing: border-box;
+            background: rgba(255,255,255,0.8);
+            color: #444;
+            border: 2px solid rgba(255,192,203,0.3);
+            border-radius: 15px;
+            overflow-y: hidden;
+            resize: none;
+            backdrop-filter: blur(10px);
+            display: block;
+            box-shadow: 0 6px 20px rgba(255,182,193,0.2);
+            transition: all 0.3s ease;
+        }
+        textarea::placeholder {
+            color: #888;
+            font-style: italic;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #ff6b9d;
+            box-shadow: 0 8px 30px rgba(255, 107, 157, 0.3);
+            transform: translateY(-2px);
+        }
+        textarea.over-limit {
+            border-color: #ff4757;
+            box-shadow: 0 8px 30px rgba(255, 71, 87, 0.3);
+        }
+        .over-limit-text {
+            background-color: #ff4757;
+            color: white;
+        }
+        #character-counter {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(15px);
+            border-top: 2px solid rgba(255,192,203,0.4);
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            display: none;
+            z-index: 1000;
+            text-align: center;
+            box-shadow: 0 -4px 20px rgba(255,182,193,0.2);
+        }
+        #character-counter.over-limit {
+            color: #ff4757;
+            font-weight: bold;
+            background: rgba(255,245,245,0.95);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        #markdown-toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(15px);
+            border-top: 2px solid rgba(255,192,203,0.4);
+            padding: 12px;
+            display: none;
+            justify-content: center;
+            gap: 10px;
+            z-index: 1000;
+            flex-wrap: wrap;
+            box-shadow: 0 -4px 20px rgba(255,182,193,0.2);
+        }
+        .md-button {
+            padding: 10px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 2px solid rgba(255,192,203,0.3);
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            color: #444;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-weight: 600;
+        }
+        .md-button:hover {
+            background: linear-gradient(135deg, #fab1a0, #fd79a8);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(253, 121, 168, 0.3);
+        }
+        .md-button b { font-weight: bold; }
+        .md-button i { font-style: italic; }
+        .md-button u { text-decoration: underline; }
+        .md-button s { text-decoration: line-through; }
+
+        #markdown-preview {
+            width: 100%;
+            max-width: 640px;
+            margin: 20px auto;
+            padding: 18px;
+            font-size: 16px;
+            line-height: 1.6;
+            box-sizing: border-box;
+            background: rgba(255,255,255,0.9);
+            color: #444;
+            border: 2px solid rgba(255,192,203,0.3);
+            border-radius: 15px;
+            min-height: 160px;
+            display: none;
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 6px 20px rgba(255,182,193,0.2);
+        }
+        #markdown-preview a {
+            color: #ff6b9d;
+            text-decoration: underline;
+        }
+        #markdown-preview blockquote {
+            border-left: 4px solid #ff6b9d;
+            padding-left: 12px;
+            margin-left: 8px;
+            color: #666;
+            background: rgba(255,107,157,0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        #markdown-preview code {
+            background: rgba(255,235,59,0.3);
+            color: #e65100;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-weight: 600;
+        }
+        #markdown-preview .spoiler {
+            background-color: #ddd;
+            color: #ddd;
+            padding: 2px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        #markdown-preview .spoiler:hover {
+            color: #444;
+            background-color: #f0f0f0;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            text-align: left;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            color: #d9534f;
+            font-size: 1.5em;
+        }
+
+        .modal-content p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .modal-content strong {
+            word-break: break-all;
+            font-size: 0.9em;
+            color: #555;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #agree-button {
+            background: linear-gradient(135deg, #5cb85c, #4cae4c);
+            color: white;
+        }
+
+        #disagree-button {
+            background: linear-gradient(135deg, #f0ad4e, #eea236);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="warning-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>外部ファイルの読み込みに関する警告</h2>
+            <p>外部のCSVファイルを読み込もうとしています。このファイルは第三者によって提供されたものであり、予期せぬコンテンツが含まれている可能性があります。</p>
+            <p>提供元が信頼できる場合にのみ、読み込みを続行してください。</p>
+            <p><strong>URL:</strong> <br><strong id="external-url"></strong></p>
+            <div class="modal-buttons">
+                <button id="agree-button">同意して読み込む</button>
+                <button id="disagree-button">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="player-container">
+        <iframe id="youtube-player" 
+                width="560" 
+                height="315" 
+                src="" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+        </iframe>
+    </div>
+
+    <h1 id="title-text">Share</h1>
+    <p>ランダムで楽曲を再生します。</p>
+
+    <div id="platform-container" class="platform-button-container"></div>
+
+    <div class="button-container">
+        <button id="random-button">次の曲へ</button>
+        <button id="twitter-button" class="share-button">Twitter(X)</button>
+        <button id="discord-button" class="share-button">Discord</button>
+        <button id="other-button" class="share-button active">その他</button>
+        <button id="native-share-button" class="share-button">共有</button>
+        <button id="help-button">使い方</button>
+    </div>
+
+    <textarea id="memo-area" placeholder="ここにメモを入力..." rows="10"></textarea>
+    <div id="markdown-preview"></div>
+
+    <div id="character-counter">0 / 140</div>
+
+    <div id="markdown-toolbar">
+        <button class="md-button" data-md-start="**" data-md-end="**"><b>B</b></button>
+        <button class="md-button" data-md-start="*" data-md-end="*"><i>I</i></button>
+        <button class="md-button" data-md-start="__" data-md-end="__"><u>U</u></button>
+        <button class="md-button" data-md-start="~~" data-md-end="~~"><s>S</s></button>
+        <button class="md-button" data-md-start="||" data-md-end="||">Spoiler</button>
+        <button class="md-button" data-md-start="`" data-md-end="`">Code</button>
+        <button class="md-button" data-md-start="> " data-md-end="">Quote</button>
+        <button class="md-button" id="md-link">Link</button>
+        <div style="border-left: 1px solid #ccc; margin: 0 5px;"></div>
+        <button class="md-button" id="md-edit-mode">Edit</button>
+        <button class="md-button" id="md-preview-mode">Preview</button>
+    </div>
+
+    <script>
+        const playerContainer = document.getElementById('player-container');
+        const randomButton = document.getElementById('random-button');
+        const twitterButton = document.getElementById('twitter-button');
+        const discordButton = document.getElementById('discord-button');
+        const otherButton = document.getElementById('other-button');
+        const memoArea = document.getElementById('memo-area');
+        const characterCounter = document.getElementById('character-counter');
+        const markdownToolbar = document.getElementById('markdown-toolbar');
+        const markdownPreview = document.getElementById('markdown-preview');
+        const nativeShareButton = document.getElementById('native-share-button');
+        const titleText = document.getElementById('title-text');
+        const platformContainer = document.getElementById('platform-container');
+        const helpButton = document.getElementById('help-button');
+        const warningModal = document.getElementById('warning-modal');
+        const externalUrlSpan = document.getElementById('external-url');
+        const agreeButton = document.getElementById('agree-button');
+        const disagreeButton = document.getElementById('disagree-button');
+
+        if (navigator.share) {
+            nativeShareButton.style.display = 'inline-block';
+        }
+
+        let videoIds = {
+            youtube: [],
+            niconico: [],
+            spotify: [],
+            youtubemusic: []
+        };
+        let currentPlatform = '';
+        let currentShareMode = 'other'; // 標準は「その他」
+        let currentVideoId = ''; // 現在再生中の動画ID
+
+        // レート制限機能
+        const rateLimiter = {
+            requests: new Map(),
+            maxRequests: 10, // 1分間に最大10回
+            timeWindow: 60000, // 1分間
+
+            isAllowed() {
+                const now = Date.now();
+                const key = 'csv_fetch';
+                
+                if (!this.requests.has(key)) {
+                    this.requests.set(key, []);
+                }
+                
+                const timestamps = this.requests.get(key);
+                
+                // 時間窓外の古いリクエストを削除
+                const validTimestamps = timestamps.filter(t => now - t < this.timeWindow);
+                this.requests.set(key, validTimestamps);
+                
+                if (validTimestamps.length >= this.maxRequests) {
+                    console.warn('Rate limit exceeded for CSV fetching');
+                    return false;
+                }
+                
+                validTimestamps.push(now);
+                return true;
+            }
+        };
+
+        // エラーログ管理
+        const errorLogger = {
+            errors: [],
+            maxErrors: 100,
+            
+            log(error, context = '') {
+                const errorEntry = {
+                    timestamp: new Date().toISOString(),
+                    error: error.toString(),
+                    context,
+                    userAgent: navigator.userAgent.substring(0, 200) // 制限付きで記録
+                };
+                
+                this.errors.push(errorEntry);
+                
+                // 古いエラーを削除
+                if (this.errors.length > this.maxErrors) {
+                    this.errors.shift();
+                }
+                
+                console.error('Error logged:', errorEntry);
+            },
+            
+            getRecentErrors(minutes = 5) {
+                const since = new Date(Date.now() - minutes * 60000);
+                return this.errors.filter(e => new Date(e.timestamp) > since);
+            }
+        };
+
+        // 動画IDの検証関数
+        function validateVideoId(id, platform) {
+            if (!id || typeof id !== 'string') return false;
+            
+            // サニタイズ: 危険な文字を除去
+            const sanitized = id.replace(/[<>\"'&]/g, '');
+            if (sanitized !== id) return false;
+            
+            switch (platform) {
+                case 'youtube':
+                case 'youtubemusic':
+                    return /^[a-zA-Z0-9_-]{11}$/.test(id);
+                case 'niconico':
+                    return /^[a-zA-Z0-9]+$/.test(id);
+                case 'spotify':
+                    return /^[a-zA-Z0-9]{22}$/.test(id);
+                default:
+                    return false;
+            }
+        }
+
+        // URLの安全性チェック
+        function isUrlSafe(url) {
+            try {
+                const parsedUrl = new URL(url);
+                
+                // HTTPSのみ許可
+                if (parsedUrl.protocol !== 'https:') {
+                    console.warn("Only HTTPS URLs are allowed");
+                    return false;
+                }
+                
+                // 危険なホスト名をブロック
+                const dangerousHosts = [
+                    'localhost',
+                    '127.0.0.1',
+                    '0.0.0.0',
+                    '::1'
+                ];
+                
+                if (dangerousHosts.includes(parsedUrl.hostname)) {
+                    console.warn("Potentially dangerous hostname blocked:", parsedUrl.hostname);
+                    return false;
+                }
+                
+                // プライベートIPアドレスをブロック
+                const ipv4Pattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+                if (ipv4Pattern.test(parsedUrl.hostname)) {
+                    const parts = parsedUrl.hostname.split('.').map(Number);
+                    // プライベートIPレンジをチェック
+                    if ((parts[0] === 10) ||
+                        (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+                        (parts[0] === 192 && parts[1] === 168)) {
+                        console.warn("Private IP address blocked:", parsedUrl.hostname);
+                        return false;
+                    }
+                }
+                
+                // ファイル拡張子チェック
+                if (!parsedUrl.pathname.toLowerCase().endsWith('.csv')) {
+                    console.warn("Only CSV files are allowed");
+                    return false;
+                }
+                
+                return true;
+            } catch (e) {
+                console.error("URL validation failed:", e);
+                return false;
+            }
+        }
+
+        // URLから参照するCSVファイルのパスを取得する
+        function getCsvPath() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // ?u=<URL> パラメータを優先
+            if (params.has('u')) {
+                const url = params.get('u');
+                
+                // URL長制限（2048文字）
+                if (url.length > 2048) {
+                    console.error("URL too long (max 2048 characters)");
+                    return 'ippitsukamome.csv';
+                }
+                
+                if (isUrlSafe(url)) {
+                    return url;
+                } else {
+                    console.error("Unsafe URL detected:", url);
+                    return 'ippitsukamome.csv';
+                }
+            }
+            
+            // ?=***.csv or ?***.csv 形式のパラメータをチェック
+            let search = window.location.search.substring(1);
+            if (search) {
+                // 他のパラメータ（&以降）を切り捨てる
+                search = search.split('&')[0];
+
+                // 'u='で始まっていないことを確認
+                if (search && !search.startsWith('u=')) {
+                    const fileName = search.startsWith('=') ? search.substring(1) : search;
+                    // 簡単なバリデーション
+                    if (fileName.endsWith('.csv')) {
+                        return decodeURIComponent(fileName);
+                    }
+                }
+            }
+            
+            // デフォルトのCSVファイル
+            return 'ippitsukamome.csv';
+        }
+
+        // CSV名を基にタイトルを更新
+        function updateTitle(csvPath) {
+            // パスからファイル名部分を抽出 (例: "https://.../foo.csv" -> "foo.csv")
+            const fileNameWithExt = csvPath.substring(csvPath.lastIndexOf('/') + 1);
+            // 拡張子を除去 (例: "foo.csv" -> "foo")
+            const fileName = fileNameWithExt.replace(/\.csv$/, '');
+            
+            // デコードして、最初の文字を大文字にする (例: "ippitsukamome" -> "Ippitsukamome")
+            const decodedFileName = decodeURIComponent(fileName);
+            const capitalizedFileName = decodedFileName.charAt(0).toUpperCase() + decodedFileName.slice(1);
+
+            // 新しいタイトルを作成
+            const newTitle = `${capitalizedFileName} Share`;
+            
+            // ページのタイトルとH1要素を更新
+            titleText.textContent = newTitle;
+            document.title = newTitle;
+        }
+
+        // HTMLエスケープ関数
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(match) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[match];
+            });
+        }
+
+        // 現在の動画URLを取得
+        function getCurrentVideoUrl() {
+            if (!currentVideoId) return '';
+            switch (currentPlatform) {
+                case 'youtube':
+                    return `https://youtu.be/${currentVideoId}`;
+                case 'niconico':
+                    return `https://www.nicovideo.jp/watch/${currentVideoId}`;
+                case 'spotify':
+                    return `https://open.spotify.com/track/${currentVideoId}`;
+                case 'youtubemusic':
+                    return `https://music.youtube.com/watch?v=${currentVideoId}`;
+                default:
+                    return '';
+            }
+        }
+
+        // テキスト内のURLを検出してカウントを調整（Xモード用）
+        function getEffectiveTextLength(text) {
+            if (currentShareMode !== 'twitter') return text.length;
+            
+            // 各種URLパターンを検出
+            const urlPattern = /https?:\/\/[^\s]+/g;
+            const urls = text.match(urlPattern) || [];
+            
+            let adjustedLength = text.length;
+            urls.forEach(url => {
+                // 実際のURL文字数から23文字を引く（TwitterのURL短縮）
+                adjustedLength = adjustedLength - url.length + 23;
+            });
+            
+            return adjustedLength;
+        }
+
+        // テキストエリアに動画URLを挿入
+        function insertVideoUrl() {
+            const videoUrl = getCurrentVideoUrl();
+            if (!videoUrl) return;
+            
+            const currentText = memoArea.value;
+            // URLが既に含まれている場合は挿入しない
+            if (currentText.includes(videoUrl)) return;
+            
+            // テキストエリアが空の場合はURLのみ、そうでなければ改行してURL追加
+            let newText;
+            if (currentText.trim() === '') {
+                newText = videoUrl;
+            } else {
+                newText = currentText + '\n' + videoUrl;
+            }
+            
+            memoArea.value = newText;
+            
+            // 高さを調整
+            memoArea.style.height = 'auto';
+            memoArea.style.height = (memoArea.scrollHeight) + 'px';
+            
+            // 文字数更新（Xモードの場合）
+            if (currentShareMode === 'twitter') {
+                updateCharacterCounter();
+            }
+        }
+
+        // 文字数カウンターを更新
+        function updateCharacterCounter() {
+            const currentLength = getEffectiveTextLength(memoArea.value);
+            const maxLength = 140;
+            characterCounter.textContent = `${currentLength} / ${maxLength}`;
+            
+            if (currentLength > maxLength) {
+                characterCounter.classList.add('over-limit');
+            } else {
+                characterCounter.classList.remove('over-limit');
+            }
+        }
+
+        nativeShareButton.addEventListener('click', async () => {
+            const url = getCurrentVideoUrl();
+            const text = memoArea.value;
+            const title = document.title;
+
+            // テキストが空でURLがある場合、タイトルをテキストとして使用
+            const shareText = text.trim() === '' && url ? title : text;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: title,
+                        text: shareText,
+                        url: url
+                    });
+                } catch (error) {
+                    errorLogger.log(error, 'Web Share API');
+                }
+            }
+        });
+
+        // シェアボタンの選択状態を管理
+        function setActiveShareButton(activeButton) {
+            const shareButtons = [twitterButton, discordButton, otherButton];
+            shareButtons.forEach(button => button.classList.remove('active'));
+            activeButton.classList.add('active');
+            
+            // 選択されたモードを記録
+            if (activeButton === twitterButton) {
+                currentShareMode = 'twitter';
+                characterCounter.style.display = 'block';
+                markdownToolbar.style.display = 'none';
+                memoArea.style.display = 'block';
+                markdownPreview.style.display = 'none';
+                insertVideoUrl(); // URLを自動挿入
+                updateCharacterCounter();
+            } else if (activeButton === discordButton) {
+                currentShareMode = 'discord';
+                characterCounter.style.display = 'none';
+                markdownToolbar.style.display = 'flex';
+                memoArea.style.display = 'block';
+                markdownPreview.style.display = 'none';
+                insertVideoUrl(); // URLを自動挿入
+            } else {
+                currentShareMode = 'other';
+                characterCounter.style.display = 'none';
+                markdownToolbar.style.display = 'none';
+                memoArea.style.display = 'block';
+                markdownPreview.style.display = 'none';
+                insertVideoUrl(); // URLを自動挿入
+            }
+        }
+
+        // Markdownボタンのクリックイベント
+        markdownToolbar.addEventListener('click', (e) => {
+            const target = e.target.closest('.md-button');
+            if (!target) return;
+
+            if (target.id === 'md-link') {
+                const url = getCurrentVideoUrl();
+                if (url) {
+                    const startPos = memoArea.selectionStart;
+                    const endPos = memoArea.selectionEnd;
+                    const selectedText = memoArea.value.substring(startPos, endPos) || 'リンクテキスト';
+                    const replacement = `[${selectedText}](${url})`;
+                    memoArea.value = memoArea.value.substring(0, startPos) + replacement + memoArea.value.substring(endPos);
+                    memoArea.focus();
+                    memoArea.setSelectionRange(startPos + 1, startPos + 1 + selectedText.length);
+                } else {
+                    alert('現在再生中の動画がありません。');
+                }
+                return;
+            }
+
+            if (target.id === 'md-edit-mode') {
+                memoArea.style.display = 'block';
+                markdownPreview.style.display = 'none';
+                memoArea.focus();
+                return;
+            }
+
+            if (target.id === 'md-preview-mode') {
+                memoArea.style.display = 'none';
+                markdownPreview.style.display = 'block';
+                renderMarkdown();
+                return;
+            }
+
+            const startTag = target.dataset.mdStart;
+            const endTag = target.dataset.mdEnd;
+            const startPos = memoArea.selectionStart;
+            const endPos = memoArea.selectionEnd;
+            const selectedText = memoArea.value.substring(startPos, endPos);
+            
+            let replacement;
+            if (startTag === '> ') { // 引用の場合
+                replacement = startTag + selectedText.replace(/\n/g, '\n> ');
+            } else {
+                replacement = startTag + selectedText + endTag;
+            }
+
+            memoArea.value = memoArea.value.substring(0, startPos) + replacement + memoArea.value.substring(endPos);
+            
+            // フォーカスとカーソル位置を調整
+            memoArea.focus();
+            if (selectedText) {
+                memoArea.setSelectionRange(startPos + startTag.length, endPos + startTag.length);
+            } else {
+                memoArea.setSelectionRange(startPos + startTag.length, startPos + startTag.length);
+            }
+        });
+
+        // MarkdownをHTMLに変換してプレビュー表示
+        function renderMarkdown() {
+            let html = memoArea.value;
+            // HTMLエスケープ
+            html = escapeHTML(html);
+            // **太字**
+            html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+            // *斜体*
+            html = html.replace(/\*(.*?)\*/g, '<i>$1</i>');
+            // __下線__
+            html = html.replace(/__(.*?)__/g, '<u>$1</u>');
+            // ~~取り消し線~~
+            html = html.replace(/~~(.*?)~~/g, '<s>$1</s>');
+            // ||スポイラー||
+            html = html.replace(/\|\|(.*?)\|\|/g, '<span class="spoiler">$1</span>');
+            // `コード`
+            html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+            // > 引用
+            html = html.replace(/^&gt; (.*$)/gm, '<blockquote>$1</blockquote>');
+            // [テキスト](URL) - URLの安全性をチェック
+            html = html.replace(/\[(.*?)\]\((.*?)\)/g, (match, text, url) => {
+                try {
+                    const parsedUrl = new URL(url);
+                    if (parsedUrl.protocol === 'https:' || parsedUrl.protocol === 'http:') {
+                        return `<a href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(text)}</a>`;
+                    }
+                } catch (e) {
+                    // 無効なURLの場合はテキストのみ表示
+                }
+                return escapeHTML(text);
+            });
+            // 改行
+            html = html.replace(/\n/g, '<br>');
+
+            markdownPreview.innerHTML = html;
+        }
+
+        // プラットフォームボタンを生成
+        function createPlatformButtons() {
+            platformContainer.innerHTML = '';
+            const platforms = [
+                { id: 'youtube', name: 'YouTube' },
+                { id: 'niconico', name: 'ニコニコ動画' },
+                { id: 'spotify', name: 'Spotify' },
+                { id: 'youtubemusic', name: 'YouTube Music' }
+            ];
+
+            platforms.forEach(platform => {
+                if (videoIds[platform.id] && videoIds[platform.id].length > 0) {
+                    const button = document.createElement('button');
+                    button.id = `platform-${platform.id}`;
+                    button.className = 'platform-button';
+                    button.textContent = platform.name;
+                    button.addEventListener('click', () => {
+                        currentPlatform = platform.id;
+                        setActivePlatformButton(button);
+                        loadRandomVideo();
+                    });
+                    platformContainer.appendChild(button);
+                }
+            });
+
+            // 最初の利用可能なプラットフォームをアクティブにする
+            const firstAvailablePlatform = platforms.find(p => videoIds[p.id] && videoIds[p.id].length > 0);
+            if (firstAvailablePlatform) {
+                const firstButton = document.getElementById(`platform-${firstAvailablePlatform.id}`);
+                currentPlatform = firstAvailablePlatform.id;
+                if (firstButton) {
+                    setActivePlatformButton(firstButton);
+                }
+            }
+        }
+
+        function setActivePlatformButton(activeButton) {
+            document.querySelectorAll('.platform-button').forEach(btn => btn.classList.remove('active'));
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+        }
+
+        // シェアボタンのクリックイベント
+        twitterButton.addEventListener('click', () => setActiveShareButton(twitterButton));
+        discordButton.addEventListener('click', () => setActiveShareButton(discordButton));
+        otherButton.addEventListener('click', () => setActiveShareButton(otherButton));
+
+        // ヘルプボタンのクリックイベント
+        helpButton.addEventListener('click', () => {
+            window.open('setumei.html', '_blank');
+        });
+
+        // Web Share APIを使った共有
+        if (navigator.share) {
+            nativeShareButton.addEventListener('click', async () => {
+                const text = memoArea.value;
+                const url = getCurrentVideoUrl();
+                let shareText = text;
+
+                // テキストにURLが含まれていない場合、追加する
+                if (url && !text.includes(url)) {
+                    shareText = text ? `${text}\n${url}` : url;
+                }
+
+                try {
+                    await navigator.share({
+                        title: document.title,
+                        text: shareText,
+                    });
+                } catch (error) {
+                    console.error('共有に失敗しました:', error);
+                }
+            });
+        } else {
+            // Web Share APIがサポートされていない場合はボタンを非表示にする
+            nativeShareButton.style.display = 'none';
+        }
+
+        // 使い方モーダル
+        function showHelpModal() {
+            alert("・「次の曲へ」ボタンで、選択中のプラットフォームからランダムに曲を再生します。\n・プラットフォームのボタンを押すと、そのサイトの曲に切り替わります。\n・下のテキストエリアにメモや感想を書き込めます。\n・シェアボタン（Twitter(X), Discordなど）を押すと、各アプリ向けのモードに切り替わります。\n・「共有」ボタンは、お使いのデバイスの共有機能を使います（対応機種のみ）。\n・URLに ?ippitsukamome.csv のようにファイル名を追加すると、外部のリストを読み込めます。");
+        }
+
+        function loadRandomVideo() {
+            if (!currentPlatform || !videoIds[currentPlatform] || videoIds[currentPlatform].length === 0) {
+                playerContainer.innerHTML = '<p>このプラットフォームで再生できる曲がありません。</p>';
+                currentVideoId = '';
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * videoIds[currentPlatform].length);
+            const videoId = videoIds[currentPlatform][randomIndex];
+            currentVideoId = videoId;
+
+            playerContainer.innerHTML = ''; // コンテナをクリア
+
+            let embedUrl = '';
+            switch (currentPlatform) {
+                case 'youtube':
+                case 'youtubemusic':
+                    embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                    break;
+                case 'niconico':
+                    embedUrl = `https://embed.nicovideo.jp/watch/${videoId}`;
+                    break;
+                case 'spotify':
+                    embedUrl = `https://open.spotify.com/embed/track/${videoId}`;
+                    break;
+            }
+
+            if (embedUrl) {
+                const iframe = document.createElement('iframe');
+                iframe.src = embedUrl;
+                iframe.frameBorder = "0";
+                iframe.allowFullscreen = true;
+                
+                if (currentPlatform === 'youtube' || currentPlatform === 'youtubemusic') {
+                    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                }
+                
+                playerContainer.appendChild(iframe);
+
+                if (currentPlatform === 'niconico') {
+                    const nicoScript = document.createElement('script');
+                    nicoScript.type = 'text/javascript';
+                    nicoScript.src = `https://embed.nicovideo.jp/watch/${videoId}/script?w=640&h=360`;
+                    playerContainer.appendChild(nicoScript);
+                }
+            }
+            
+            // URLをメモエリアに挿入
+            if (currentShareMode !== 'other') {
+                insertVideoUrl();
+            }
+        }
+
+        // エラー表示用のメッセージ要素を作成
+        function showErrorMessage(message) {
+            // 既存のエラーメッセージを削除
+            const existingError = document.getElementById('error-message');
+            if (existingError) {
+                existingError.remove();
+            }
+
+            const errorDiv = document.createElement('div');
+            errorDiv.id = 'error-message';
+            errorDiv.style.cssText = `
+                background: rgba(255, 71, 87, 0.9);
+                color: white;
+                padding: 15px;
+                margin: 20px auto;
+                max-width: 640px;
+                border-radius: 10px;
+                text-align: center;
+                font-weight: 600;
+                box-shadow: 0 4px 20px rgba(255, 71, 87, 0.3);
+                backdrop-filter: blur(10px);
+                border: 2px solid rgba(255, 71, 87, 0.4);
+                animation: slideDown 0.3s ease-out;
+            `;
+            errorDiv.innerHTML = message;
+
+            // スタイルシートにアニメーションを追加（まだ存在しない場合）
+            if (!document.querySelector('#error-animation-style')) {
+                const style = document.createElement('style');
+                style.id = 'error-animation-style';
+                style.textContent = `
+                    @keyframes slideDown {
+                        from { transform: translateY(-20px); opacity: 0; }
+                        to { transform: translateY(0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // プレイヤーコンテナの後に挿入
+            playerContainer.parentNode.insertBefore(errorDiv, playerContainer.nextSibling);
+
+            // 5秒後に自動的に消去
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.style.animation = 'slideUp 0.3s ease-out';
+                    setTimeout(() => errorDiv.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // CSVファイルを取得して動画IDをセットアップ
+        async function fetchAndSetupVideoIds() {
+            const csvPath = getCsvPath();
+            let usedFallback = false;
+            let currentPath = csvPath;
+            
+            try {
+                let response = await fetch(currentPath);
+                
+                // 404エラーやその他のエラーの場合、デフォルトにフォールバック
+                if (!response.ok) {
+                    if (currentPath !== 'ippitsukamome.csv') {
+                        console.warn(`CSVファイル "${currentPath}" が見つかりません (${response.status}). デフォルトファイルを使用します。`);
+                        showErrorMessage(`⚠️ 指定されたCSVファイル "${currentPath}" が見つかりませんでした。<br>デフォルトのリストを表示しています。`);
+                        currentPath = 'ippitsukamome.csv';
+                        usedFallback = true;
+                        response = await fetch(currentPath);
+                        
+                        // デフォルトファイルも見つからない場合
+                        if (!response.ok) {
+                            throw new Error(`デフォルトCSVファイルも見つかりません: ${response.status}`);
+                        }
+                    } else {
+                        throw new Error(`CSVファイルが見つかりません: ${response.status}`);
+                    }
+                }
+
+                const data = await response.text();
+                
+                // BOMの除去
+                const cleanData = data.charCodeAt(0) === 0xFEFF ? data.substring(1) : data;
+
+                // 全てのIDを一旦リセット
+                videoIds = { youtube: [], niconico: [], spotify: [], youtubemusic: [] };
+
+                // CSVデータを解析
+                const lines = cleanData.split(/\r?\n/); // 行で分割
+                const ids = lines.flatMap(line => line.split(',').map(id => id.trim()).filter(id => id));
+                
+                if (ids.length === 0) {
+                    throw new Error('CSVファイルに有効な動画IDが見つかりませんでした');
+                }
+                
+                ids.forEach(id => {
+                    // バリデーション
+                    if (!validateVideoId(id, 'youtube') && !validateVideoId(id, 'niconico') && !validateVideoId(id, 'spotify')) {
+                        console.warn(`無効な動画ID: ${id}`);
+                        return;
+                    }
+
+                    // プラットフォームを判定
+                    if (/^(sm|nm|so)[0-9]+$/.test(id)) { // niconico
+                        videoIds.niconico.push(id);
+                    } else if (/^[a-zA-Z0-9_-]{11}$/.test(id)) { // youtube, youtubemusic
+                        videoIds.youtube.push(id);
+                    } else if (/^[a-zA-Z0-9]{22}$/.test(id)) { // spotify
+                        videoIds.spotify.push(id);
+                    }
+                });
+
+                // 有効な動画IDがない場合
+                const totalVideos = Object.values(videoIds).reduce((sum, arr) => sum + arr.length, 0);
+                if (totalVideos === 0) {
+                    throw new Error('CSVファイルに再生可能な動画が見つかりませんでした');
+                }
+
+                // タイトルを更新（フォールバックした場合はデフォルトのパスを使用）
+                updateTitle(usedFallback ? 'ippitsukamome.csv' : currentPath);
+                createPlatformButtons();
+
+            } catch (error) {
+                errorLogger.log(error, 'CSV fetch and setup');
+                console.error('CSVファイルの読み込み中にエラーが発生しました:', error);
+                
+                // ユーザーにエラーを表示
+                showErrorMessage(`❌ CSVファイルの読み込みに失敗しました:<br>${error.message}`);
+                
+                // プレイヤーエリアにエラー表示
+                playerContainer.innerHTML = `
+                    <div style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100%;
+                        background: rgba(255, 71, 87, 0.1);
+                        color: #ff4757;
+                        font-weight: 600;
+                        text-align: center;
+                        padding: 20px;
+                        border-radius: 18px;
+                    ">
+                        <div>
+                            <div style="font-size: 48px; margin-bottom: 10px;">😔</div>
+                            <div>楽曲リストの読み込みに失敗しました</div>
+                            <div style="font-size: 0.9em; margin-top: 10px; color: #666;">
+                                ページを再読み込みしてお試しください
+                            </div>
+                        </div>
+                    </div>
+                `;
+                currentVideoId = '';
+            }
+        }
+
+        // メイン処理
+        function main() {
+            // タイトルを初期化（デフォルト値で）
+            updateTitle('ippitsukamome.csv');
+            
+            fetchAndSetupVideoIds()
+                .then(() => {
+                    // 最初のプラットフォームボタンをアクティブにする
+                    const firstPlatform = Object.keys(videoIds).find(key => videoIds[key].length > 0);
+                    if (firstPlatform) {
+                        currentPlatform = firstPlatform;
+                        setActivePlatformButton(document.getElementById(`platform-${currentPlatform}`));
+                        loadRandomVideo();
+                    }
+                })
+                .catch(error => {
+                    console.error('初期化中にエラーが発生しました:', error);
+                    errorLogger.log(error, 'Main initialization');
+                });
+        }
+
+        // アプリケーションの開始
+        main();
+    </script>
+
+</body>
+</html>
